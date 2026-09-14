@@ -1,80 +1,85 @@
-# QuantusMiner 1.4.6 · QTS 挖矿使用指南
+# 8gkg QuantusMiner
 
-面向 NVIDIA 显卡，支持 Windows 与 HiveOS，开发者费用 0%。启动时自动调优，通常在 20 秒内完成；支持 SSL 连接和异常退出、卡死后的自动重启。
+主页：[8gkg.com](https://8gkg.com)。用于 NVIDIA 显卡的 Quantus（qpow-poseidon2）挖矿软件，支持 Windows、Linux 与 HiveOS。默认开发者费用 **1%**，可自行调整或关闭。
 
-## HiveOS 配置
+## 文件与启动
 
-**钱包、矿池、矿工名全部填写在「附加参数 / Extra config」中。** 本版本不读取飞行表单独的钱包模板、矿池、密码和算法字段，无需添加算法参数。
+- Windows：`8gkg_quantusminer.exe`，或解压 Windows 压缩包后运行。
+- Linux：`8gkg_quantusminer`，首次运行执行 `chmod +x 8gkg_quantusminer`。
+- HiveOS：使用本目录的 `.tar.gz` 安装包，自定义矿工名填写 `8gkg_quantusminer`。
+- 每个可执行文件和压缩包均提供同名 `.sha256` 文件。
 
-1. 在飞行表中选择自定义矿工 **Custom**，打开自定义配置。
-2. 矿工名称填写 `quantusminer`。
-3. 安装地址填写本次发布提供的 **quantusminer-1.4.6.tar.gz 下载链接**，不要填写 Windows 压缩包链接。
-4. 在「附加参数 / Extra config」粘贴下方参数，替换为自己的 QTS 钱包地址。
-5. 保存并应用飞行表。
+请在启动前设置自己的收款地址。无参数启动及随附脚本保留项目默认钱包，默认钱包与下方开发者钱包相同；如不修改，用户挖矿部分也会发往该默认钱包。使用 `--auth-token` 时，收款身份以 token 中的地址为准。
 
-```text
---server sg.lproute.com:5660 --user 你的QTS钱包地址.WORKER_NAME --pass x --ssl 0
-```
+## **quanpool** 连接说明
 
-**务必将 `你的QTS钱包地址` 替换为自己的完整 QTS 收款地址。** `WORKER_NAME` 保留原样，程序会自动替换成本机的系统主机名。例如主机名为 `rig01`，矿工名就会使用 `rig01`。
+[quanpool](https://quanpool.com/) 使用 QUIC 接口，需要放行节点的 UDP 端口，并提供证书 SHA-256 指纹。以下示例使用亚洲节点，欧洲节点作为故障切换；节点与指纹若有变化，以矿池官网 Start mining 页面为准。
 
-其他钱包、矿池、算法字段如可留空，直接留空；如 HiveOS 界面要求填写，这些字段也不会覆盖附加参数。更换钱包或矿池时，请修改附加参数并重新应用飞行表。
-
-## 常用附加参数
-
-| 参数 | 用途 | 示例 |
-| --- | --- | --- |
-| `--server` / `-server` | 矿池地址和端口 | `--server sg.lproute.com:5660` |
-| `--user` / `-user` | QTS 钱包，可在末尾添加矿工名 | `--user 你的QTS钱包地址.WORKER_NAME` |
-| `--work` / `-work` | 单独指定矿工名 | `--work rig01` |
-| `--pass` / `-pass` | 矿池密码，通常为 `x` | `--pass x` |
-| `--ssl` / `-ssl` | `1` 开启 SSL，`0` 使用普通 TCP | `--ssl 0` |
-| `-d` | 选择显卡，编号从 `0` 开始；不填则使用全部显卡 | `-d 0,1,3` |
-| `--print-interval` | 算力统计刷新间隔，单位秒，默认 `30` | `--print-interval 30` |
-
-### 指定显卡
-
-例如只使用编号为 0、1、3 的显卡，请确认这些编号在机器上实际存在：
-
-```text
---server sg.lproute.com:5660 --user 你的QTS钱包地址.WORKER_NAME --pass x --ssl 0 -d 0,1,3
-```
-
-### 固定矿工名
-
-```text
---server sg.lproute.com:5660 --user 你的QTS钱包地址 --work rig01 --pass x --ssl 0
-```
-
-### 使用 SSL 矿池
-
-将下方地址和端口替换为矿池提供的 SSL 接入地址：
-
-```text
---server 矿池地址:SSL端口 --user 你的QTS钱包地址.WORKER_NAME --pass x --ssl 1
-```
-
-SSL 连接不验证服务器证书，支持自签证书，无需加载证书文件。端口必须使用矿池提供的 SSL 端口；上面的 `sg.lproute.com:5660` 示例使用普通 TCP。
-
-## Windows 启动
-
-下载并解压 `quantusminer-1.4.6-win64.zip`，右键编辑 `start.bat`：
-
-- 将 `WALLET` 改为自己的 QTS 钱包地址。
-- 按需修改 `POOL`、`WORKER` 和 `SSL`。
-- 保存后双击 `start.bat` 启动，程序与 BAT 保持在同一目录。
-
-也可以在程序所在目录打开 PowerShell，执行：
+Windows PowerShell（将 `YOUR_PAYOUT_ADDRESS` 换成自己的地址，`rig1-gpu` 换成矿工名）：
 
 ```powershell
-.\quantusminer.exe --server sg.lproute.com:5660 --user 你的QTS钱包地址.WORKER_NAME --pass x --ssl 0
+.\8gkg_quantusminer.exe serve --node-addr "15.235.146.115:9834;37.187.143.115:9834" --auth-token YOUR_PAYOUT_ADDRESS.rig1-gpu --tls-cert-sha256 87dc37af6096a3ddc860b94368ca087775f3ad3e0c4e9bcff3b07ea08d8abef6
 ```
 
-## 启动后检查
+Linux：
 
-- 确认启动信息中的钱包、矿池、矿工名和显卡正确。
-- 等待自动调优完成。开始挖矿后约 10 秒首次显示统计，此后默认每 30 秒刷新。
-- 出现 `Share accepted` 表示矿池已接受份额；矿池后台数据可能稍后更新。
-- HiveOS 可通过矿机页面查看运行状态与算力。
+```bash
+./8gkg_quantusminer serve --node-addr '15.235.146.115:9834;37.187.143.115:9834' --auth-token YOUR_PAYOUT_ADDRESS.rig1-gpu --tls-cert-sha256 87dc37af6096a3ddc860b94368ca087775f3ad3e0c4e9bcff3b07ea08d8abef6
+```
 
-如连接失败，检查附加参数中的矿池地址、端口和 SSL 设置。钱包修改未生效时，确认修改的是「附加参数」，并重新应用飞行表。旧版本若出现算法不支持的报错，请更新到 **1.4.6**，并从附加参数中删除其他软件遗留的算法参数。
+HiveOS 飞行表中选择 Custom，设置矿工名 `8gkg_quantusminer`，安装地址填写对应安装包的下载地址。在“附加配置”中填写：
+
+```text
+--node-addr "15.235.146.115:9834;37.187.143.115:9834" --auth-token YOUR_PAYOUT_ADDRESS.rig1-gpu --tls-cert-sha256 87dc37af6096a3ddc860b94368ca087775f3ad3e0c4e9bcff3b07ea08d8abef6
+```
+
+本软件的 HiveOS 脚本从“附加配置”读取参数，请把钱包身份写在上述 `--auth-token` 中。省略 `-d` 使用所有支持的显卡，追加 `-d 0,1` 选择指定设备；追加 `--devfee 0` 关闭开发者费用。QUIC 接口不要追加 `--ssl`。
+
+只检查连接、证书与任务：在相同连接参数后追加 `--check-pool --seconds 15`。此模式不运行 GPU，也不抽水。原有 TCP/SSL 矿池仍可通过 `--pool HOST:PORT --wallet ADDRESS --worker RIG` 使用。
+
+QUIC 协议没有逐份接受确认，软件显示已发送结果，矿池算力与接受数显示 `--`；实际入账请查矿池页面。本地有效证明校验不等于公网入账确认。
+
+## 显卡适配与自动调优
+
+以下型号已有实机运行与正确性验证：
+
+| 显卡 | 架构 | 路径 |
+| --- | --- | --- |
+| GTX 1660 SUPER | SM75 / Turing | loop-v2；自动比较展开版 |
+| RTX 3080 | SM86 / Ampere | 展开版、循环版自动选择 |
+| RTX 4070 SUPER | SM89 / Ada | raw-x7 |
+| RTX 5060 Ti | SM120 / Blackwell | 原生路径 |
+
+RTX 20 系（2060、2070、2080、2080 Ti 及对应 SUPER 型号）按实际 SM75 架构参与同一套自动调优，包含循环版、展开版和精确兼容实现；**尚无 RTX 20 系实机测速，不能承诺提升幅度**。CMP 30HX 也按实际架构选核，尚未实机验证。
+
+正常启动最多使用 20 秒，按每张显卡的 UUID 单独选择内核、线程块和批次。相同架构可共用实现，最终参数因显卡资源、频率和功耗状态而异，无需逐型号硬编码。1660 SUPER 实测仍以循环版更快，因此保留其默认路径。`--no-autotune` 跳过调优；手动参数会限制搜索范围。
+
+## 开发者费用
+
+默认 **1%** 的 GPU 计算时间用于开发者钱包：
+
+```text
+qzpV7LAcu9wgxqpcf9Sv3c7oGVhNC9zqebZYAagJVFNZ77dtm
+```
+
+使用同一矿池配置建立独立开发者会话，在 GPU 批次之间切换计算。抽水期间用户连接继续保持、接收任务和保活；切换过程不额外刷屏，不改变界面中的用户钱包、矿工名或矿池。启动信息始终显示已配置的费用比例。
+
+费用按每张 GPU 的实际搜索批次耗时累计，长期接近设定比例；受批次粒度影响，短时比例会有偏差。默认通常累计约 198 秒用户计算后执行约 2 秒开发者计算。等待网络、空闲与自动调优不计费。开发者连接不可用时继续用户任务，不积累长时间补扣。
+
+`Total Rate`、统计 API 与 HiveOS 算力显示用户和开发者计算的总速度；用户 A/R/P 与矿池算力仅统计用户份额。因此总速度不等于用户收款地址在矿池端的有效算力。
+
+关闭开发者费用：在启动命令或 HiveOS 附加配置末尾添加：
+
+```text
+--devfee 0
+```
+
+关闭后不建立开发者连接，也不执行开发者任务。可使用 `--devfee 0.5`、`--devfee 2` 等自定义比例，范围为 0–100；`--devfee 100` 表示全部计算给开发者，开发者无可用任务时等待。JSON 配置示例：`{"devfee": 0}`，命令行参数覆盖配置文件。此费用与矿池自身的收费分开。
+
+## 运行与已知限制
+
+程序不需要另装 .NET、Go 或 CUDA Toolkit，需要可支持显卡的 NVIDIA 驱动。Linux 程序最高 GLIBC 导入版本为 2.17，实机验证环境为 Ubuntu 22.04。QUIC 传输程序由单文件释放到临时目录，退出时清理；临时目录须允许执行。
+
+快速路径保留原有算术边界行为：CPU 完整 512 位校验可过滤错误提交，但不能恢复漏掉的候选。需要精确算术时使用 `--portable`、`--portable-unrolled` 或 `--carry-valid`。短时扫描速度不能作为矿池长期有效算力的保证。
+
+使用 `--self-test -d 0` 检查显卡，`--benchmark -d 0 --seconds 10` 限时测速，`--help` 查看全部选项，`--licenses` 查看许可证。源码、重建步骤与测试记录保存在项目目录中。
